@@ -3,6 +3,7 @@ package users
 import (
 	"database/sql"
 	"errors"
+	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -36,4 +37,8 @@ func CreateUserService(db *sql.DB, u User) (UserResponse, error) {
 
 func GetAllUsersService(db *sql.DB) ([]UserResponse, error) {
 	return FetchUsers(db)
+}
+
+func GetUserByIdService(db *sql.DB, r *http.Request) (*UserResponse, error) {
+	return FetchUserById(db, r)
 }

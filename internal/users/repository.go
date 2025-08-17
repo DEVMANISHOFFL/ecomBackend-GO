@@ -1,6 +1,12 @@
 package users
 
-import "database/sql"
+import (
+	"database/sql"
+	"fmt"
+	"net/http"
+
+	"github.com/gorilla/mux"
+)
 
 func InsertUser(db *sql.DB, u User) (string, error) {
 	var id string
@@ -10,6 +16,10 @@ func InsertUser(db *sql.DB, u User) (string, error) {
 		RETURNING id`,
 		u.Name, u.Email, u.Password, u.Role,
 	).Scan(&id)
+
+	if err != nil {
+		return "", fmt.Errorf("failed to insert user: %w", err)
+	}
 
 	return id, err
 }
@@ -33,4 +43,19 @@ func FetchUsers(db *sql.DB) ([]UserResponse, error) {
 		return nil, err
 	}
 	return users, nil
+}
+
+func FetchUserById(db *sql.DB, r *http.Request) (*UserResponse, error) {
+	id := mux.Vars(r)["id"]
+	var u UserResponse
+	err := db.QueryRow("SELECT id, name, email, role, created_at, updated_at FROM users WHERE id=$1", id).
+		Scan(&u.ID, &u.Name, &u.Email, &u.Role, &u.CreatedAt, &u.UpdatedAt)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &u, nil
+
 }
