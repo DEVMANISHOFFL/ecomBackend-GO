@@ -1,0 +1,30 @@
+# made User struct in -------------->users/user.go
+# database connection ----------------> cmd/db/connect.go
+# called ConnectDB in -------------------> cmd/main.go
+# made initTable to make table if not exist in -------->cmd/db/initDB.go
+# called initTables() to ------------------>cmd/main.go
+# 
+# made JSONContentTypeMiddleware middleware in ------------> pkg/middleware/json.go
+# creating controller for users in ------------------> internal/users/controller/go
+# created createUser and also added bcrypt in --------------->controller.go
+# learnt how bcrypt works
+# added UserResponse struct below User struct in -----------------------> user.go
+#
+# separted insert Query of database from controller to --------------->repository.go
+# similarly Handles password hashing, validation, and calling repository ---------------->service.go
+# 
+# 
+# 
+# 
+# 
+# 
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
