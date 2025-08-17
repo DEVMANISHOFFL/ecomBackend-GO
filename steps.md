@@ -13,7 +13,12 @@
 # separted insert Query of database from controller to --------------->repository.go
 # similarly Handles password hashing, validation, and calling repository ---------------->service.go
 # 
-# 
+
+1. Model / Entity (internal/users/user.go)
+2. Repository (DB queries) (internal/users/repository.go)
+3. Service (business logic) (internal/users/service.go)
+4. Controller (HTTP handlers) (internal/users/controller.go)
+5. Routes (internal/users/routes.go)
 # 
 # 
 # 
