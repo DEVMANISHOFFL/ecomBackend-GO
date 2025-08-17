@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-func InitTables(db *sql.DB) {
+func InitUserTable(db *sql.DB) {
 	_, err := db.Exec(`
 	CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 

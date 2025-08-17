@@ -20,7 +20,7 @@ func CreateUserController(db *sql.DB) http.HandlerFunc {
 		}
 
 		resp, err := CreateUserService(db, u)
-		if err != nil {
+		if err != nil {	
 			utils.SendJSONError(w, http.StatusBadRequest, err)
 			return
 		}
