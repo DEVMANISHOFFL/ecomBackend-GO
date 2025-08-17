@@ -21,10 +21,16 @@
 5. Routes (internal/users/routes.go)
 # 
 # made user in psql with code sudo -u postgres psql and then same id pass to tableplus
-# 
-# 
 #
 #
+#
+# router(routes.go)----->GetUsersController(controller.go)----->GetAllUsersService(service.go)----->FetchUsers(repository.go)
+#
+# CreateUsersController DONE 
+# GetUserController DONE
+#
+#
+# 
 #
 #
 #

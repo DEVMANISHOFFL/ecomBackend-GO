@@ -30,3 +30,7 @@ func CreateUserService(db *sql.DB, u User) (UserResponse, error) {
 		Role:  u.Role,
 	}, nil
 }
+
+func GetAllUsersService(db *sql.DB) ([]User, error) {
+	return FetchUsers(db)
+}

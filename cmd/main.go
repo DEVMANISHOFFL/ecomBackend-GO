@@ -20,7 +20,7 @@ func main() {
 	router := mux.NewRouter()
 	users.RegisterRoutes(router, database)
 
-	log.Println("Server started at http://localhost:8080")
+	log.Println("Server started at http://localhost:8082")
 	if err := http.ListenAndServe(":8082", router); err != nil {
 		log.Fatal(err)
 	}

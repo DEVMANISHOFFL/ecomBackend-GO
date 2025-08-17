@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func CreateUser(db *sql.DB) http.HandlerFunc {
+func CreateUserController(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var u User
 		if err := json.NewDecoder(r.Body).Decode(&u); err != nil {
@@ -22,5 +22,18 @@ func CreateUser(db *sql.DB) http.HandlerFunc {
 
 		w.WriteHeader(http.StatusCreated)
 		json.NewEncoder(w).Encode(resp)
+	}
+}
+
+// GetUsers returns all users from the database
+func GetUsersController(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		users, err := GetAllUsersService(db)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(users)
 	}
 }
