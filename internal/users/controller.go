@@ -25,7 +25,6 @@ func CreateUserController(db *sql.DB) http.HandlerFunc {
 	}
 }
 
-// GetUsers returns all users from the database
 func GetUsersController(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		users, err := GetAllUsersService(db)
