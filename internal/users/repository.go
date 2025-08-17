@@ -57,5 +57,16 @@ func FetchUserById(db *sql.DB, r *http.Request) (*UserResponse, error) {
 		return nil, err
 	}
 	return &u, nil
+}
 
+func DeleteUserById(db *sql.DB, id string) (bool, error) {
+	res, err := db.Exec("DELETE FROM users WHERE id=$1", id)
+	if err != nil {
+		return false, fmt.Errorf("failed to delete user: %w", err)
+	}
+	rowsAffected, _ := res.RowsAffected()
+	if rowsAffected == 0 {
+		return false, nil
+	}
+	return true, nil
 }

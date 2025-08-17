@@ -7,6 +7,8 @@ import (
 	"net/http"
 
 	"ecom/pkg/utils"
+
+	"github.com/gorilla/mux"
 )
 
 func CreateUserController(db *sql.DB) http.HandlerFunc {
@@ -55,5 +57,33 @@ func GetUserByIdController(db *sql.DB) http.HandlerFunc {
 
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(user)
+	}
+}
+
+func DeleteUserController(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := mux.Vars(r)["id"]
+
+		user, err := FetchUserById(db, r)
+		if err != nil {
+			utils.SendJSONError(w, http.StatusInternalServerError, err)
+			return
+		}
+
+		if user == nil {
+			utils.SendJSONError(w, http.StatusNotFound, fmt.Errorf("User not found"))
+			return
+		}
+
+		deleted, err := DeleteUserService(db, id)
+		if err != nil {
+			utils.SendJSONError(w, http.StatusInternalServerError, err)
+			return
+		}
+		if !deleted {
+			utils.SendJSONError(w, http.StatusNotFound, fmt.Errorf("User not found"))
+			return
+		}
+		json.NewEncoder(w).Encode(map[string]any{"message": "User Deleted Successfully", "user": user})
 	}
 }

@@ -42,3 +42,7 @@ func GetAllUsersService(db *sql.DB) ([]UserResponse, error) {
 func GetUserByIdService(db *sql.DB, r *http.Request) (*UserResponse, error) {
 	return FetchUserById(db, r)
 }
+
+func DeleteUserService(db *sql.DB, id string) (bool,error) {
+	return DeleteUserById(db, id)
+}

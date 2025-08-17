@@ -16,6 +16,6 @@ func RegisterRoutes(router *mux.Router, db *sql.DB) {
 	api.HandleFunc("/users", GetUsersController(db)).Methods("GET")
 	api.HandleFunc("/users", CreateUserController(db)).Methods("POST")
 	api.HandleFunc("/users/{id}", GetUserByIdController(db)).Methods("GET")
-	// router.HandleFunc("/users/{id}", DeleteUser(db)).Methods("DELETE")
+	api.HandleFunc("/users/{id}", DeleteUserController(db)).Methods("DELETE")
 	// router.HandleFunc("/users/{id}", UpdateUser(db)).Methods("PUT")
 }
