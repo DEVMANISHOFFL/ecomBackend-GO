@@ -20,7 +20,7 @@
 4. Controller (HTTP handlers) (internal/users/controller.go)
 5. Routes (internal/users/routes.go)
 # 
-# 
+# made user in psql with code sudo -u postgres psql and then same id pass to tableplus
 # 
 # 
 #

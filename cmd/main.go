@@ -2,7 +2,11 @@ package main
 
 import (
 	"ecom/cmd/db"
+	"ecom/internal/users"
 	"log"
+	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func main() {
@@ -12,4 +16,12 @@ func main() {
 	log.Println("App started with DB connection")
 
 	db.InitTables(database)
+
+	router := mux.NewRouter()
+	users.RegisterRoutes(router, database)
+
+	log.Println("Server started at http://localhost:8080")
+	if err := http.ListenAndServe(":8082", router); err != nil {
+		log.Fatal(err)
+	}
 }
