@@ -45,7 +45,8 @@ func GetUsersController(db *sql.DB) http.HandlerFunc {
 
 func GetUserByIdController(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		user, err := GetUserByIdService(db, r)
+		id := mux.Vars(r)["id"]
+		user, err := GetUserByIdService(db, id)
 		if err != nil {
 			utils.SendJSONError(w, http.StatusInternalServerError, err)
 			return
@@ -64,7 +65,7 @@ func DeleteUserController(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := mux.Vars(r)["id"]
 
-		user, err := FetchUserById(db, r)
+		user, err := FetchUserById(db, id)
 		if err != nil {
 			utils.SendJSONError(w, http.StatusInternalServerError, err)
 			return
@@ -85,5 +86,23 @@ func DeleteUserController(db *sql.DB) http.HandlerFunc {
 			return
 		}
 		json.NewEncoder(w).Encode(map[string]any{"message": "User Deleted Successfully", "user": user})
+	}
+}
+
+func UpdateUserController(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := mux.Vars(r)["id"]
+		var u User
+		if err := json.NewDecoder(r.Body).Decode(&u); err != nil {
+			utils.SendJSONError(w, http.StatusBadRequest, fmt.Errorf("invalid JSON body"))
+			return
+		}
+		UpdatedUser, err := UpdateUserService(db, id, u)
+		if err != nil {
+			utils.SendJSONError(w, http.StatusInternalServerError, err)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]any{"message": "User updated", "user": UpdatedUser})
 	}
 }

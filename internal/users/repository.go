@@ -3,9 +3,6 @@ package users
 import (
 	"database/sql"
 	"fmt"
-	"net/http"
-
-	"github.com/gorilla/mux"
 )
 
 func InsertUser(db *sql.DB, u User) (string, error) {
@@ -45,8 +42,7 @@ func FetchUsers(db *sql.DB) ([]UserResponse, error) {
 	return users, nil
 }
 
-func FetchUserById(db *sql.DB, r *http.Request) (*UserResponse, error) {
-	id := mux.Vars(r)["id"]
+func FetchUserById(db *sql.DB, id string) (*UserResponse, error) {
 	var u UserResponse
 	err := db.QueryRow("SELECT id, name, email, role, created_at, updated_at FROM users WHERE id=$1", id).
 		Scan(&u.ID, &u.Name, &u.Email, &u.Role, &u.CreatedAt, &u.UpdatedAt)
@@ -69,4 +65,16 @@ func DeleteUserById(db *sql.DB, id string) (bool, error) {
 		return false, nil
 	}
 	return true, nil
+}
+
+func UpdateUser(db *sql.DB, id string, u User) (*UserResponse, error) {
+	_, err := db.Exec(`
+		UPDATE users
+		SET name=$1, email=$2, password=$3, role=$4,updated_at=NOW()
+		WHERE id=$5`, u.Name, u.Email, u.Password, u.Role, id)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to update user: %w", err)
+	}
+	return FetchUserById(db, id)
 }

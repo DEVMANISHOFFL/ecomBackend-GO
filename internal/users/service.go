@@ -3,7 +3,6 @@ package users
 import (
 	"database/sql"
 	"errors"
-	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -39,10 +38,14 @@ func GetAllUsersService(db *sql.DB) ([]UserResponse, error) {
 	return FetchUsers(db)
 }
 
-func GetUserByIdService(db *sql.DB, r *http.Request) (*UserResponse, error) {
-	return FetchUserById(db, r)
+func GetUserByIdService(db *sql.DB, id string) (*UserResponse, error) {
+	return FetchUserById(db, id)
 }
 
-func DeleteUserService(db *sql.DB, id string) (bool,error) {
+func DeleteUserService(db *sql.DB, id string) (bool, error) {
 	return DeleteUserById(db, id)
+}
+
+func UpdateUserService(db *sql.DB, id string, u User) (*UserResponse, error) {
+	return UpdateUser(db, id, u)
 }
