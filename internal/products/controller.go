@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func CreateProductController(db *sql.DB) http.HandlerFunc {
@@ -34,5 +36,22 @@ func GetProductsController(db *sql.DB) http.HandlerFunc {
 		}
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(products)
+	}
+}
+
+func GetProductByIdController(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := mux.Vars(r)["id"]
+		product, err := GetProductByIdService(db, id)
+		if err != nil {
+			utils.SendJSONError(w, http.StatusInternalServerError, err)
+			return
+		}
+		if product == nil {
+			utils.SendJSONError(w, http.StatusFound, fmt.Errorf("user not found"))
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(product	)
 	}
 }

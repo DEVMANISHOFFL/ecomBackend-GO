@@ -38,3 +38,16 @@ func FetchProducts(db *sql.DB) ([]Product, error) {
 	}
 	return products, err
 }
+
+func FetchProductById(db *sql.DB, id string) (*Product, error) {
+	var u Product
+	err := db.QueryRow("SELECT id,name,description,price,quantity,category,status,created_at,updated_at FROM products WHERE id=$1", id).
+		Scan(&u.ID, &u.Name, &u.Description, &u.Price, &u.Quantity, &u.Category, &u.Status, &u.CreatedAt, &u.UpdatedAt)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, nil
+	}
+	return &u, nil
+}

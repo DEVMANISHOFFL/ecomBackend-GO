@@ -33,3 +33,7 @@ func CreateProductService(db *sql.DB, u Product) (Product, error) {
 func GetAllProductsService(db *sql.DB) ([]Product, error) {
 	return FetchProducts(db)
 }
+
+func GetProductByIdService(db *sql.DB, id string) (*Product, error) {
+	return FetchProductById(db, id)
+}
