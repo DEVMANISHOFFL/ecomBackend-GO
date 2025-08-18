@@ -3,6 +3,7 @@ package users
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -29,13 +30,30 @@ func CreateUserController(db *sql.DB) http.HandlerFunc {
 
 func GetUsersController(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		users, err := GetAllUsersService(db)
+		// userID := mux.Vars(r)["id"]
+		// if userID == "" {
+		// 	http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		// 	fmt.Println(userID)
+		// 	return
+		// }
+
+		rows, err := db.Query("SELECT id, name, email FROM users")
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(w, "Database error", http.StatusInternalServerError)
 			return
 		}
+		defer rows.Close()
 
-		w.WriteHeader(http.StatusOK)
+		var users []User
+		for rows.Next() {
+			var u User
+			if err := rows.Scan(&u.ID, &u.Name, &u.Email); err != nil {
+				http.Error(w, "Error scanning user", http.StatusInternalServerError)
+				return
+			}
+			users = append(users, u)
+		}
+
 		json.NewEncoder(w).Encode(users)
 	}
 }
@@ -45,10 +63,6 @@ func GetUserByIdController(db *sql.DB) http.HandlerFunc {
 		id := mux.Vars(r)["id"]
 		user, err := GetUserByIdService(db, id)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		if user == nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -102,5 +116,25 @@ func UpdateUserController(db *sql.DB) http.HandlerFunc {
 		}
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(map[string]any{"message": "User updated", "user": updatedUser})
+	}
+}
+
+func GetProfileHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := mux.Vars(r)["id"]
+		fmt.Println(id)
+		if id == "" {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		user, err := GetUserByIdService(db, id)
+		if err != nil {
+			http.Error(w, "User not found", http.StatusNotFound)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(user)
 	}
 }
