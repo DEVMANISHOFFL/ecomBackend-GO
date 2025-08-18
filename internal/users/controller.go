@@ -20,7 +20,7 @@ func CreateUserController(db *sql.DB) http.HandlerFunc {
 		}
 
 		resp, err := CreateUserService(db, u)
-		if err != nil {	
+		if err != nil {
 			utils.SendJSONError(w, http.StatusBadRequest, err)
 			return
 		}
@@ -72,7 +72,7 @@ func DeleteUserController(db *sql.DB) http.HandlerFunc {
 		}
 
 		if user == nil {
-			utils.SendJSONError(w, http.StatusNotFound, fmt.Errorf("User not found"))
+			utils.SendJSONError(w, http.StatusNotFound, fmt.Errorf("u	ser not found"))
 			return
 		}
 
@@ -97,12 +97,12 @@ func UpdateUserController(db *sql.DB) http.HandlerFunc {
 			utils.SendJSONError(w, http.StatusBadRequest, fmt.Errorf("invalid JSON body"))
 			return
 		}
-		UpdatedUser, err := UpdateUserService(db, id, u)
+		updatedUser, err := UpdateUserService(db, id, u)
 		if err != nil {
 			utils.SendJSONError(w, http.StatusInternalServerError, err)
 			return
 		}
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(map[string]any{"message": "User updated", "user": UpdatedUser})
+		json.NewEncoder(w).Encode(map[string]any{"message": "User updated", "user": updatedUser})
 	}
 }

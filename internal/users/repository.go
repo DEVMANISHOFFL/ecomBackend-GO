@@ -55,7 +55,7 @@ func FetchUserById(db *sql.DB, id string) (*UserResponse, error) {
 	return &u, nil
 }
 
-func DeleteUserById(db *sql.DB, id string) (bool, error) {
+func DeleteUser(db *sql.DB, id string) (bool, error) {
 	res, err := db.Exec("DELETE FROM users WHERE id=$1", id)
 	if err != nil {
 		return false, fmt.Errorf("failed to delete user: %w", err)
@@ -78,3 +78,4 @@ func UpdateUser(db *sql.DB, id string, u User) (*UserResponse, error) {
 	}
 	return FetchUserById(db, id)
 }
+	

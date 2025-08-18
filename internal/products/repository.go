@@ -51,3 +51,26 @@ func FetchProductById(db *sql.DB, id string) (*Product, error) {
 	}
 	return &u, nil
 }
+
+func DeleteProduct(db *sql.DB, id string) (bool, error) {
+	res, err := db.Exec("DELETE FROM products WHERE id=$1", id)
+	if err != nil {
+		return false, fmt.Errorf("failed to delete user: %w", err)
+	}
+	rowsaffected, _ := res.RowsAffected()
+	if rowsaffected == 0 {
+		return false, nil
+	}
+	return true, nil
+}
+
+func UpdateProduct(db *sql.DB, id string, u Product) (*Product, error) {
+	_, err := db.Exec(`
+	UPDATE products
+	SET name=$1, description=$2, price=$3, quantity=$4, category=$5, status=$6, updated_at=NOW()
+	WHERE id=$7`, u.Name, u.Description, u.Price, u.Quantity, u.Category, u.Status, id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update product: %w", err)
+	}
+	return FetchProductById(db, id)
+}

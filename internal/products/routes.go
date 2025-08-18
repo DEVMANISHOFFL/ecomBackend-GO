@@ -16,6 +16,6 @@ func RegisterRoutes(router *mux.Router, db *sql.DB) {
 	api.HandleFunc("/products", GetProductsController(db)).Methods("GET")
 	api.HandleFunc("/products", CreateProductController(db)).Methods("POST")
 	api.HandleFunc("/products/{id}", GetProductByIdController(db)).Methods("GET")
-	// api.HandleFunc("/products/{id}", DeleteProductController(db)).Methods("DELETE")
-	// api.HandleFunc("/products/{id}", UpdateProductController(db)).Methods("PUT")
+	api.HandleFunc("/products/{id}", DeleteProductController(db)).Methods("DELETE")
+	api.HandleFunc("/products/{id}", UpdateProductController(db)).Methods("PUT")
 }

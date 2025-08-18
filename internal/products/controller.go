@@ -52,6 +52,49 @@ func GetProductByIdController(db *sql.DB) http.HandlerFunc {
 			return
 		}
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(product	)
+		json.NewEncoder(w).Encode(product)
+	}
+}
+
+func DeleteProductController(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := mux.Vars(r)["id"]
+		product, err := FetchProductById(db, id)
+		if err != nil {
+			utils.SendJSONError(w, http.StatusInternalServerError, err)
+			return
+		}
+		if product == nil {
+			utils.SendJSONError(w, http.StatusNotFound, fmt.Errorf("product not found"))
+			return
+		}
+		deleted, err := DeleteProductService(db, id)
+		if err != nil {
+			utils.SendJSONError(w, http.StatusInternalServerError, err)
+			return
+		}
+		if !deleted {
+			utils.SendJSONError(w, http.StatusNotFound, fmt.Errorf("product not found"))
+			return
+		}
+		json.NewEncoder(w).Encode(map[string]any{"message": "Product deleted successfully", "product": product})
+	}
+}
+
+func UpdateProductController(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := mux.Vars(r)["id"]
+		var p Product
+		if err := json.NewDecoder(r.Body).Decode(&p); err != nil {
+			utils.SendJSONError(w, http.StatusBadRequest, fmt.Errorf("invalid JSON body"))
+			return
+		}
+		updatedProduct, err := UpdateProductService(db, id, p)
+		if err != nil {
+			utils.SendJSONError(w, http.StatusInternalServerError, err)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]any{"message": "Product updated successfully", "Product": updatedProduct})
 	}
 }

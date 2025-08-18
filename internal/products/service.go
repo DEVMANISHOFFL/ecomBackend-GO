@@ -37,3 +37,11 @@ func GetAllProductsService(db *sql.DB) ([]Product, error) {
 func GetProductByIdService(db *sql.DB, id string) (*Product, error) {
 	return FetchProductById(db, id)
 }
+
+func DeleteProductService(db *sql.DB, id string) (bool, error) {
+	return DeleteProduct(db, id)
+}
+
+func UpdateProductService(db *sql.DB, id string, u Product) (*Product, error) {
+	return UpdateProduct(db, id, u)
+}

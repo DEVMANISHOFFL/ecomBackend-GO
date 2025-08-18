@@ -43,7 +43,7 @@ func GetUserByIdService(db *sql.DB, id string) (*UserResponse, error) {
 }
 
 func DeleteUserService(db *sql.DB, id string) (bool, error) {
-	return DeleteUserById(db, id)
+	return DeleteUser(db, id)
 }
 
 func UpdateUserService(db *sql.DB, id string, u User) (*UserResponse, error) {
