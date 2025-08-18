@@ -2,6 +2,7 @@ package users
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 )
 
@@ -17,7 +18,6 @@ func InsertUser(db *sql.DB, u User) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to insert user: %w", err)
 	}
-
 	return id, err
 }
 
@@ -78,4 +78,26 @@ func UpdateUser(db *sql.DB, id string, u User) (*UserResponse, error) {
 	}
 	return FetchUserById(db, id)
 }
-	
+
+func GetUserByEmail(db *sql.DB, email string) (*User, error) {
+	var user User
+
+	query := `SELECT id, name, email, password, role FROM users WHERE email = $1 LIMIT 1`
+
+	err := db.QueryRow(query, email).Scan(
+		&user.ID,
+		&user.Name,
+		&user.Email,
+		&user.Password,
+		&user.Role,
+	)
+
+	if err == sql.ErrNoRows {
+		return nil, errors.New("user not found")
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}

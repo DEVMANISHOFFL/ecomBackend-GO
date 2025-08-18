@@ -3,10 +3,7 @@ package users
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"net/http"
-
-	"ecom/pkg/utils"
 
 	"github.com/gorilla/mux"
 )
@@ -15,13 +12,13 @@ func CreateUserController(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var u User
 		if err := json.NewDecoder(r.Body).Decode(&u); err != nil {
-			utils.SendJSONError(w, http.StatusBadRequest, fmt.Errorf("invalid JSON body"))
+			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
 		resp, err := CreateUserService(db, u)
 		if err != nil {
-			utils.SendJSONError(w, http.StatusBadRequest, err)
+			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
@@ -34,7 +31,7 @@ func GetUsersController(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		users, err := GetAllUsersService(db)
 		if err != nil {
-			utils.SendJSONError(w, http.StatusInternalServerError, err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -48,11 +45,11 @@ func GetUserByIdController(db *sql.DB) http.HandlerFunc {
 		id := mux.Vars(r)["id"]
 		user, err := GetUserByIdService(db, id)
 		if err != nil {
-			utils.SendJSONError(w, http.StatusInternalServerError, err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		if user == nil {
-			utils.SendJSONError(w, http.StatusNotFound, fmt.Errorf("user not found"))
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -67,22 +64,22 @@ func DeleteUserController(db *sql.DB) http.HandlerFunc {
 
 		user, err := FetchUserById(db, id)
 		if err != nil {
-			utils.SendJSONError(w, http.StatusInternalServerError, err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		if user == nil {
-			utils.SendJSONError(w, http.StatusNotFound, fmt.Errorf("u	ser not found"))
+			http.Error(w, err.Error(), http.StatusNotFound)
 			return
 		}
 
 		deleted, err := DeleteUserService(db, id)
 		if err != nil {
-			utils.SendJSONError(w, http.StatusInternalServerError, err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		if !deleted {
-			utils.SendJSONError(w, http.StatusNotFound, fmt.Errorf("User not found"))
+			http.Error(w, err.Error(), http.StatusNotFound)
 			return
 		}
 		json.NewEncoder(w).Encode(map[string]any{"message": "User Deleted Successfully", "user": user})
@@ -94,12 +91,13 @@ func UpdateUserController(db *sql.DB) http.HandlerFunc {
 		id := mux.Vars(r)["id"]
 		var u User
 		if err := json.NewDecoder(r.Body).Decode(&u); err != nil {
-			utils.SendJSONError(w, http.StatusBadRequest, fmt.Errorf("invalid JSON body"))
+			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 		updatedUser, err := UpdateUserService(db, id, u)
 		if err != nil {
-			utils.SendJSONError(w, http.StatusInternalServerError, err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+
 			return
 		}
 		w.WriteHeader(http.StatusOK)
