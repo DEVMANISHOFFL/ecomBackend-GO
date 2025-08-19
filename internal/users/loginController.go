@@ -37,6 +37,7 @@ func LoginUser(db *sql.DB) http.HandlerFunc {
 		expirationTime := time.Now().Add(24 * time.Hour)
 		claims := &jwt.MapClaims{
 			"user_id": user.ID,
+			"role":    user.Role,
 			"exp":     expirationTime.Unix(),
 		}
 

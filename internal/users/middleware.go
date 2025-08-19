@@ -8,9 +8,8 @@ import (
 
 type contextKey string
 
-const UserIDKey = contextKey("userID")
+const ClaimsKey = contextKey("claims")
 
-// AuthMiddleware protects routes and extracts UserID from JWT
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
@@ -37,16 +36,37 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		// Attach UUID to context
-		ctx := context.WithValue(r.Context(), UserIDKey, claims.UserID)
+		// Attach claims to context
+		ctx := context.WithValue(r.Context(), ClaimsKey, claims)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
-func GetUserIDFromContext(r *http.Request) string {
-	val := r.Context().Value(UserIDKey)
-	if str, ok := val.(string); ok {
-		return str
+func GetClaimsFromContext(r *http.Request) *Claims {
+	val := r.Context().Value(ClaimsKey)
+	if claims, ok := val.(*Claims); ok {
+		return claims
 	}
-	return ""
+	return nil
+}
+
+func RoleMiddleware(allowedRoles ...Role) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			claims := GetClaimsFromContext(r)
+			if claims == nil {
+				http.Error(w, "Unauthorized", http.StatusUnauthorized)
+				return
+			}
+
+			for _, role := range allowedRoles {
+				if claims.Role == role {
+					next.ServeHTTP(w, r)
+					return
+				}
+			}
+
+			http.Error(w, "Forbidden", http.StatusForbidden)
+		})
+	}
 }

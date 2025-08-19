@@ -30,30 +30,13 @@ func CreateUserController(db *sql.DB) http.HandlerFunc {
 
 func GetUsersController(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// userID := mux.Vars(r)["id"]
-		// if userID == "" {
-		// 	http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		// 	fmt.Println(userID)
-		// 	return
-		// }
-
-		rows, err := db.Query("SELECT id, name, email FROM users")
+		users, err := GetAllUsersService(db)
 		if err != nil {
-			http.Error(w, "Database error", http.StatusInternalServerError)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		defer rows.Close()
 
-		var users []User
-		for rows.Next() {
-			var u User
-			if err := rows.Scan(&u.ID, &u.Name, &u.Email); err != nil {
-				http.Error(w, "Error scanning user", http.StatusInternalServerError)
-				return
-			}
-			users = append(users, u)
-		}
-
+		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(users)
 	}
 }
@@ -74,29 +57,39 @@ func GetUserByIdController(db *sql.DB) http.HandlerFunc {
 
 func DeleteUserController(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+
 		id := mux.Vars(r)["id"]
 
+		// Fetch user to check existence
 		user, err := FetchUserById(db, id)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(w, `{"error": "Database error while fetching user"}`, http.StatusInternalServerError)
 			return
 		}
 
 		if user == nil {
-			http.Error(w, err.Error(), http.StatusNotFound)
+			http.Error(w, `{"error": "User not found"}`, http.StatusNotFound)
 			return
 		}
 
+		// Delete user
 		deleted, err := DeleteUserService(db, id)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(w, `{"error": "Error deleting user"}`, http.StatusInternalServerError)
 			return
 		}
+
 		if !deleted {
-			http.Error(w, err.Error(), http.StatusNotFound)
+			http.Error(w, `{"error": "User could not be deleted"}`, http.StatusNotFound)
 			return
 		}
-		json.NewEncoder(w).Encode(map[string]any{"message": "User Deleted Successfully", "user": user})
+
+		// Success response
+		json.NewEncoder(w).Encode(map[string]any{
+			"message": "User deleted successfully",
+			"user":    user,
+		})
 	}
 }
 

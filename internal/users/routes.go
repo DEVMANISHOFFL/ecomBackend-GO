@@ -8,27 +8,29 @@ import (
 )
 
 func RegisterRoutes(router *mux.Router, db *sql.DB) {
-	// Middleware to set JSON headers
 	router.Use(middlewares.JSONContentTypeMiddleware)
 
-	// API v1 prefix
 	api := router.PathPrefix("/api/v1").Subrouter()
-
-	// Protected routes (require JWT)
-	protected := api.NewRoute().Subrouter()
-	protected.Use(AuthMiddleware)
 
 	// Public routes
 	api.HandleFunc("/users", CreateUserController(db)).Methods("POST")
 	api.HandleFunc("/login", LoginUser(db)).Methods("POST")
 
-	// Protected routes
-	protected.HandleFunc("/profile/{id}", GetProfileHandler(db)).Methods("GET")
-	protected.HandleFunc("/users", GetUsersController(db)).Methods("GET")
+	// Protected routes (all authenticated users)
+	protected := api.NewRoute().Subrouter()
+	protected.Use(AuthMiddleware)
 
-	// Public user by id
-	// Regex ensures only valid UUIDs are matched
+	// Profile – any logged-in user can view their own profile
+	protected.HandleFunc("/profile/{id}", GetProfileHandler(db)).Methods("GET") //its getting access of another user from another users token
+
+	// Role-based routes
+	// Admin-only routes
+	adminOnly := protected.NewRoute().Subrouter() //done ----forbidden for customers
+	adminOnly.Use(RoleMiddleware("admin"))
+	adminOnly.HandleFunc("/users", GetUsersController(db)).Methods("GET")
+	adminOnly.HandleFunc("/users/{id}", DeleteUserController(db)).Methods("DELETE")
+	adminOnly.HandleFunc("/users/{id}", UpdateUserController(db)).Methods("PUT")
+
+	// Public: view user by id (no auth required)
 	api.HandleFunc("/users/{id}", GetUserByIdController(db)).Methods("GET")
-	api.HandleFunc("/users/{id}", DeleteUserController(db)).Methods("DELETE")
-	api.HandleFunc("/users/{id}", UpdateUserController(db)).Methods("PUT")
 }
