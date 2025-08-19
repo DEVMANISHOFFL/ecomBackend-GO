@@ -1,4 +1,4 @@
-package users
+package auth
 
 import (
 	"time"
@@ -6,7 +6,15 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var jwtKey = []byte("SECRET")
+var JwtKey = []byte("SECRET")
+
+type Role string
+
+const (
+	RoleCustomer Role = "customer"
+	RoleAdmin    Role = "admin"
+	RoleSeller   Role = "seller"
+)
 
 type Claims struct {
 	UserID string `json:"user_id"`
@@ -28,7 +36,7 @@ func GenerateJWT(userID string, email string, role Role) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(jwtKey)
+	return token.SignedString(JwtKey)
 }
 
 func ParseJWT(tokenStr string) (*Claims, error) {
@@ -38,7 +46,7 @@ func ParseJWT(tokenStr string) (*Claims, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, jwt.ErrTokenSignatureInvalid
 		}
-		return jwtKey, nil
+		return JwtKey, nil
 	})
 
 	if err != nil || !token.Valid {

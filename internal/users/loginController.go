@@ -2,6 +2,7 @@ package users
 
 import (
 	"database/sql"
+	"ecom/internal/auth"
 	"encoding/json"
 	"net/http"
 	"time"
@@ -42,7 +43,7 @@ func LoginUser(db *sql.DB) http.HandlerFunc {
 		}
 
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-		tokenString, err := token.SignedString(jwtKey)
+		tokenString, err := token.SignedString(auth.JwtKey)
 		if err != nil {
 			http.Error(w, "Could not generate token", http.StatusInternalServerError)
 			return
