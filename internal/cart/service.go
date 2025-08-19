@@ -23,3 +23,7 @@ func CreateCartService(db *sql.DB, c Cart) (CartResponse, error) {
 		Quantity:  c.Quantity,
 	}, nil
 }
+
+func GetcartByIdService(db *sql.DB, id string) (*CartResponse, error) {
+	return FetchCartById(db, id)
+}

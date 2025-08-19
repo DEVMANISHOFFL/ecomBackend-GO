@@ -48,7 +48,7 @@ func GetProductByIdController(db *sql.DB) http.HandlerFunc {
 			return
 		}
 		if product == nil {
-			utils.SendJSONError(w, http.StatusFound, fmt.Errorf("user not found"))
+			utils.SendJSONError(w, http.StatusNotFound, fmt.Errorf("user not found"))
 			return
 		}
 		w.WriteHeader(http.StatusOK)
