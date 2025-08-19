@@ -31,7 +31,7 @@ func GetCartByIdController(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := mux.Vars(r)["id"]
 		fmt.Println(id)
-		cart, err := FetchCartById(db, id)
+		cart, err := FetchCartByUserID(db, id)
 		fmt.Println(cart)
 		if err != nil {
 			utils.SendJSONError(w, http.StatusInternalServerError, err)
@@ -45,3 +45,5 @@ func GetCartByIdController(db *sql.DB) http.HandlerFunc {
 		json.NewEncoder(w).Encode(cart)
 	}
 }
+
+

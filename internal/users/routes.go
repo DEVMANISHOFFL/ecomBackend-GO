@@ -19,7 +19,7 @@ func RegisterRoutes(router *mux.Router, db *sql.DB) {
 	protected := api.NewRoute().Subrouter()
 	protected.Use(auth.AuthMiddleware)
 
-	protected.HandleFunc("/profile/{id}", GetProfileHandler(db)).Methods("GET")
+	protected.HandleFunc("/profile/{id}", GetProfileController(db)).Methods("GET")
 
 	adminOnly := protected.NewRoute().Subrouter()
 	adminOnly.Use(auth.RoleMiddleware("admin"))

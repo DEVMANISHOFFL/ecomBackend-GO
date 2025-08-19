@@ -21,15 +21,24 @@ func CreateCart(db *sql.DB, c Cart) (string, error) {
 	return id, nil
 }
 
-func FetchCartById(db *sql.DB, id string) (*CartResponse, error) {
-	var u CartResponse
-	err := db.QueryRow("SELECT id,user_id,product_id,quantity,created_at,updated_at FROM cart WHERE id = $1", id).Scan(&u.ID, &u.UserID, &u.ProductID, &u.Quantity, &u.CreatedAt, &u.UpdatedAt)
-	fmt.Println(err)
+func FetchCartByUserID(db *sql.DB, userID string) ([]CartResponse, error) {
+	rows, err := db.Query(`
+		SELECT id, user_id, product_id, quantity, created_at, updated_at
+		FROM cart WHERE user_id = $1
+	`, userID)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, nil
-		}
-		return nil, nil
+		return nil, err
 	}
-	return &u, nil
+	defer rows.Close()
+
+	var carts []CartResponse
+	for rows.Next() {
+		var c CartResponse
+		if err := rows.Scan(&c.ID, &c.UserID, &c.ProductID, &c.Quantity, &c.CreatedAt, &c.UpdatedAt); err != nil {
+			return nil, err
+		}
+		carts = append(carts, c)
+	}
+
+	return carts, nil
 }

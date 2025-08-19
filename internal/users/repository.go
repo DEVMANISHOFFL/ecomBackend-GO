@@ -101,3 +101,4 @@ func GetUserByEmail(db *sql.DB, email string) (*User, error) {
 
 	return &user, nil
 }
+	

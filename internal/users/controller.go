@@ -2,12 +2,23 @@ package users
 
 import (
 	"database/sql"
+	"ecom/internal/cart"
 	"encoding/json"
-	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
 )
+
+type ProfileWithCart struct {
+	ID        string          `json:"id"`
+	Name      string          `json:"name"`
+	Email     string          `json:"email"`
+	Role      string          `json:"role"`
+	CreatedAt time.Time       `json:"created_at"`
+	UpdatedAt time.Time       `json:"updated_at"`
+	Cart      []cart.CartItem `json:"cart"` // Include cart items
+}
 
 func CreateUserController(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -109,25 +120,5 @@ func UpdateUserController(db *sql.DB) http.HandlerFunc {
 		}
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(map[string]any{"message": "User updated", "user": updatedUser})
-	}
-}
-
-func GetProfileHandler(db *sql.DB) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		id := mux.Vars(r)["id"]
-		fmt.Println(id)
-		if id == "" {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
-
-		user, err := GetUserByIdService(db, id)
-		if err != nil {
-			http.Error(w, "User not found", http.StatusNotFound)
-			return
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(user)
 	}
 }

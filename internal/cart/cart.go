@@ -11,9 +11,10 @@ type Cart struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-type CartResponse struct {
+type CartResponse Cart
+
+type CartItem struct {
 	ID        string    `json:"id"`
-	UserID    string    `json:"user_id"`
 	ProductID string    `json:"product_id"`
 	Quantity  int       `json:"quantity"`
 	CreatedAt time.Time `json:"created_at"`

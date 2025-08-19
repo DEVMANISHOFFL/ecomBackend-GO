@@ -3,7 +3,13 @@ package cart
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 )
+
+type UserCart struct {
+	UserID string     `json:"user_id"`
+	Items  []CartItem `json:"items"`
+}
 
 func CreateCartService(db *sql.DB, c Cart) (CartResponse, error) {
 	if c.UserID == "" || c.ProductID == "" {
@@ -24,6 +30,32 @@ func CreateCartService(db *sql.DB, c Cart) (CartResponse, error) {
 	}, nil
 }
 
-func GetcartByIdService(db *sql.DB, id string) (*CartResponse, error) {
-	return FetchCartById(db, id)
+func GetCartByUserIDService(db *sql.DB, userID string) (*UserCart, error) {
+	rows, err := db.Query(`
+		SELECT id, product_id, quantity, created_at, updated_at
+		FROM cart
+		WHERE user_id = $1
+	`, userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch cart items: %w", err)
+	}
+	defer rows.Close()
+
+	var items []CartItem
+	for rows.Next() {
+		var item CartItem
+		if err := rows.Scan(&item.ID, &item.ProductID, &item.Quantity, &item.CreatedAt, &item.UpdatedAt); err != nil {
+			return nil, fmt.Errorf("failed to scan cart item: %w", err)
+		}
+		items = append(items, item)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("rows iteration error: %w", err)
+	}
+
+	return &UserCart{
+		UserID: userID,
+		Items:  items,
+	}, nil
 }
