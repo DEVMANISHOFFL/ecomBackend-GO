@@ -33,7 +33,7 @@ func GetProfileController(db *sql.DB) http.HandlerFunc {
 			ID:        user.ID,
 			Name:      user.Name,
 			Email:     user.Email,
-			Role:      string(user.Role), // convert Role type to string
+			Role:      string(user.Role),
 			CreatedAt: user.CreatedAt,
 			UpdatedAt: user.UpdatedAt,
 			Cart:      userCart.Items,
@@ -41,30 +41,4 @@ func GetProfileController(db *sql.DB) http.HandlerFunc {
 
 		json.NewEncoder(w).Encode(profile)
 	}
-}
-
-func GetProfileCartController(db *sql.DB) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		id := mux.Vars(r)["id"]
-		if id == "" {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
-		cart, err := cart.GetCartByUserIDService(db, id)
-		if err != nil {
-			http.Error(w, "failed to fetch cart: "+err.Error(), http.StatusInternalServerError)
-			return
-		}
-		if len(cart.Items) == 0 {
-			w.WriteHeader(http.StatusOK)
-			json.NewEncoder(w).Encode(map[string]any{
-				"user_id": id,
-				"cart":    []any{},
-				"message": "Cart is empty",
-			})
-			return
-		}
-		json.NewEncoder(w).Encode(cart)
-	}
-
 }

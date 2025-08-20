@@ -43,13 +43,13 @@ func LoginUser(db *sql.DB) http.HandlerFunc {
 		}
 
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
 		tokenString, err := token.SignedString(auth.JwtKey)
 		if err != nil {
 			http.Error(w, "Could not generate token", http.StatusInternalServerError)
 			return
 		}
 
-		json.NewEncoder(w).Encode(map[string]string{"token": tokenString})
+		json.NewEncoder(w).Encode(map[string]string{"token": tokenString, "exp": expirationTime.Format(time.RFC3339)})
 	}
 }
-

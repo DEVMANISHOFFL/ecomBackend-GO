@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -26,8 +27,13 @@ func main() {
 	products.RegisterRoutes(router, database)
 	cart.RegisterRoutes(router, database)
 
+	// router.Use(middlewares.CORSMiddleware)
+	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
+	originsOk := handlers.AllowedOrigins([]string{"http://localhost:3000"})
+	methodsOk := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"})
+
 	log.Println("Server started at http://localhost:8082")
-	if err := http.ListenAndServe(":8082", router); err != nil {
+	if err := http.ListenAndServe(":8082", handlers.CORS(originsOk, headersOk, methodsOk)(router)); err != nil {
 		log.Fatal(err)
 	}
 }

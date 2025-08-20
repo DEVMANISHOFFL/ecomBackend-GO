@@ -17,7 +17,7 @@ type ProfileWithCart struct {
 	Role      string          `json:"role"`
 	CreatedAt time.Time       `json:"created_at"`
 	UpdatedAt time.Time       `json:"updated_at"`
-	Cart      []cart.CartItem `json:"cart"` // Include cart items
+	Cart      []cart.CartItem `json:"cart"` 
 }
 
 func CreateUserController(db *sql.DB) http.HandlerFunc {
@@ -68,11 +68,9 @@ func GetUserByIdController(db *sql.DB) http.HandlerFunc {
 
 func DeleteUserController(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
 
 		id := mux.Vars(r)["id"]
 
-		// Fetch user to check existence
 		user, err := FetchUserById(db, id)
 		if err != nil {
 			http.Error(w, `{"error": "Database error while fetching user"}`, http.StatusInternalServerError)
@@ -84,7 +82,6 @@ func DeleteUserController(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		// Delete user
 		deleted, err := DeleteUserService(db, id)
 		if err != nil {
 			http.Error(w, `{"error": "Error deleting user"}`, http.StatusInternalServerError)
